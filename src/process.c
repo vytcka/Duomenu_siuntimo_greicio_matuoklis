@@ -2,6 +2,7 @@
 #include <curl/curl.h>
 #include "processInfo.h"
 
+
 	void initialiseCurl(){
 		//užkrovimas curl bibliotekos.
 		curl_global_init(CURL_GLOBAL_ALL);
@@ -17,13 +18,20 @@
 
 	CURL* getHandle(){
 		//gavimas curl objekto pointeris.
-		return curl_easy_init();
+		handle = curl_easy_init();
+		if (handle){
+			return handle;
+		}
+		return NULL;
 	}
 
 	
 	int makeRequest(CURL* handle, char* url, requestInformacija* p){
 		if (handle == NULL){
-			return 1;
+			return 2;
+		}
+		if (p == NULL){
+			return 3;
 		}
 		//žiūrimas rezultatas requesto
 		CURLcode rezultatas;
@@ -35,20 +43,32 @@
 		
 		//vykdomas requestas
 		rezultatas = curl_easy_perform(handle);
-		if (rezultatas == CURLE_OK){
-			curl_off_t baitai;
-			//perziureti..
-			rezultatas = curl_easy_getinfo(handle, CURLINFO_SIZE_DOWNLOAD_T, &p->downlodedBytes);
-			if (rezultatas == CURLE_OK){
-			cleanHandle(handle);
-
-			return 1;
-			}
-			closeHandle(handle)
+		if (rezultatas != CURLE_OK){
+                	cleanHandle(handle);
+                	p->error = UNABLE_TO_CONNECT_TO_SERVER;
+                	return 1;
+                }
+		
+		//perziureti..
+		if(curl_easy_getinfo(handle, CURLINFO_SIZE_DOWNLOAD_T, &p->downloadedBytes) != CURLE_OK){
+			p->error = ERROR_DOWNLOADED_SIZE_FAILED;
 			return 1;
 		}
+		if (curl_easy_getinfo(handle, CURLINFO_SIZE_UPLOAD_T, &p->uploadedBytes) != CURLE_OK){
+			p->error = ERROR_UPLOADED_SIZE_FAILED;
+			return 1;
+		}
+		if (curl_easy_getinfo(handle, CURLINFO_TOTAL_TIME, &p->timeTaken)!= CURLE_OK){
+			p->error = ERROR_TIME_RETRIEVAL_FAILED;
+			return 1;
+		}
+		p->downloadSpeed = ((double)p->downloadedBytes/1000000) /p->timeTaken;
+		p->uploadSpeed = ((double)p->uploadedBytes/1000000)/p->timeTaken;
 		cleanHandle(handle);
+		p->error = NO_ERROR;
 		return 0;
+		
+		                
 	}
 
 

@@ -4,6 +4,14 @@
 
 #include <curl/curl.h>
 
+enum klaidosInformacija {
+	NO_ERROR = 0,
+	ERROR_DOWNLOADED_SIZE_FAILED = 10,
+	ERROR_UPLOADED_SIZE_FAILED = 20,
+	ERROR_TIME_RETRIEVAL_FAILED = 30,
+	UNABLE_TO_CONNECT_TO_SERVER = 40,
+};
+
 typedef struct {
 	char country[100];
 	char city[100];
@@ -12,8 +20,6 @@ typedef struct {
 	int id;
 }serverioInformacija;
 
-
-
 typedef struct {
         serverioInformacija* serveris;
         curl_off_t downloadedBytes;
@@ -21,6 +27,7 @@ typedef struct {
         double downloadSpeed;
         double uploadSpeed;
         double timeTaken;
+	enum klaidosInformacija error;
 }requestInformacija;
 
 #endif
