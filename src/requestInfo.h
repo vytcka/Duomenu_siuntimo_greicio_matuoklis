@@ -4,19 +4,23 @@
 
 #include <curl/curl.h>
 
-struct {
-	curl_off_t downloadedBytes;
-	curl_off_t uploadedBytes;
-	double downloadSpeed;
-	double uploadSpeed;
-	double timeTaken;
-}requestInfo
-
-struct {
+typedef struct {
 	char country[100];
 	char city[100];
 	char provider[100];
-	char host[100]
+	char host[100];
 	int id;
-}serverioInfomacija;
+}serverioInformacija;
+
+
+
+typedef struct {
+        serverioInformacija* serveris;
+        curl_off_t downloadedBytes;
+        curl_off_t uploadedBytes;
+        double downloadSpeed;
+        double uploadSpeed;
+        double timeTaken;
+}requestInformacija;
+
 #endif
