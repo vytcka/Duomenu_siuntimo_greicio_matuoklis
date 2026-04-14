@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <curl/curl.h>
+#include "processInfo.h"
 
 	void initialiseCurl(){
 		//užkrovimas curl bibliotekos.
@@ -20,7 +21,7 @@
 	}
 
 	
-	int makeRequest(CURL* handle, char* url, int* ){
+	int makeRequest(CURL* handle, char* url, requestInformacija* p){
 		if (handle == NULL){
 			return 1;
 		}
@@ -36,10 +37,10 @@
 		rezultatas = curl_easy_perform(handle);
 		if (rezultatas == CURLE_OK){
 			curl_off_t baitai;
-			rezultatas = curl_easy_getinfo(handle, CURLINFO_SIZE_DOWNLOAD_T, &baitai);
+			//perziureti..
+			rezultatas = curl_easy_getinfo(handle, CURLINFO_SIZE_DOWNLOAD_T, &p->downlodedBytes);
 			if (rezultatas == CURLE_OK){
 			cleanHandle(handle);
-			&baitai += 
 
 			return 1;
 			}
