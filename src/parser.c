@@ -4,25 +4,29 @@
 
 #define LOCATION "../speedtest_server_list.json"
 
-char DATA[10000000];
 
-int readData(){
-	FILE* ftptr = fopen(LOCATION, "r");
+char* readData(){
+	FILE* ftptr = fopen( "../speedtest_server_list.json", "r");
 	if (ftptr == NULL){
-		return -1;
+		return NULL;
 	}
-	size_t bytesRead = fread(DATA, 1, sizeof DATA, ftptr);
+	char* DATA = malloc(10000000);
+	if (DATA == NULL){
+		return NULL;
+	}
+	size_t sizeVar = 10000000;
+	size_t bytesRead = fread(DATA, 1, sizeVar, ftptr);
 	printf("%s", DATA);
 	printf("\n\n Kiekis baitu perskaityta. %zu\n \n", bytesRead);
 	fclose(ftptr);
-	return 0;
+	return DATA;
 }
 
-cJSON* parseJSON(){
-	cJSON* json = cJSON_Parse(DATA);
+cJSON* parseJSON(char* pntr){
+	cJSON* json = cJSON_Parse(pntr);
 	if(json == NULL){
 		const char* error_ptr = cJSON_GetErrorPtr();
-		if (error_ptr == NULL){
+		if (error_ptr != NULL){
 			printf("Error: %s \n",error_ptr);
 		}
 		cJSON_Delete(json);
@@ -35,8 +39,8 @@ cJSON* parseJSON(){
 
 
 int main(){	
-	readData();
-	cJSON* var = parseJSON();
+	char* pntr = readData();
+	cJSON* var = parseJSON(pntr);
 	if (var == NULL){
 		return 1;
 	}
@@ -44,6 +48,7 @@ int main(){
 	printf("%s \n \n ", string);
 	cJSON_Delete(var);
 	free(string);
+	free(pntr);
 	return 0;
 }
 

@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <curl/curl.h>
-#include "processInfo.h"
-
+#include "requestInfo.h"
 
 	void initialiseCurl(){
 		//užkrovimas curl bibliotekos.
@@ -36,12 +35,12 @@
 		//žiūrimas rezultatas requesto
 		CURLcode rezultatas;
 		
-		//configuruojamas requestas, kad po 15 sekundžų timeoutas ir, kad persekiotu redirectionus.
+		//configuruojamas requestas, kad po 15 sekundžų timeoutas ir, kad persekiotu redirekcionus.
 		curl_easy_setopt(handle, CURLOPT_URL, url);
 		curl_easy_setopt(handle, CURLOPT_TIMEOUT, 15L);
 		curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1L);
-		
-		//vykdomas requestas
+		curl_easy_setopt(handle, CURLOPT_UPLOAD,  1L);
+		//vykdomas rekuestas
 		rezultatas = curl_easy_perform(handle);
 		if (rezultatas != CURLE_OK){
                 	cleanHandle(handle);
@@ -52,18 +51,21 @@
 		//perziureti..
 		if(curl_easy_getinfo(handle, CURLINFO_SIZE_DOWNLOAD_T, &p->downloadedBytes) != CURLE_OK){
 			p->error = ERROR_DOWNLOADED_SIZE_FAILED;
+			cleanHandle(handle);
 			return 1;
 		}
 		if (curl_easy_getinfo(handle, CURLINFO_SIZE_UPLOAD_T, &p->uploadedBytes) != CURLE_OK){
 			p->error = ERROR_UPLOADED_SIZE_FAILED;
+			cleanHandle(handle);
 			return 1;
 		}
 		if (curl_easy_getinfo(handle, CURLINFO_TOTAL_TIME, &p->timeTaken)!= CURLE_OK){
 			p->error = ERROR_TIME_RETRIEVAL_FAILED;
+			cleanHandle(handle);
 			return 1;
 		}
-		p->downloadSpeed = ((double)p->downloadedBytes/1000000) /p->timeTaken;
-		p->uploadSpeed = ((double)p->uploadedBytes/1000000)/p->timeTaken;
+		p->downloadSpeed = ((double)p->downloadedBytes * 8 /1000000) /p->timeTaken;
+		p->uploadSpeed = ((double)p->uploadedBytes * 8/1000000)/p->timeTaken;
 		cleanHandle(handle);
 		p->error = NO_ERROR;
 		return 0;
