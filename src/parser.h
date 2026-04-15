@@ -9,4 +9,6 @@ int readData();
 
 cJSON* parseJSON();
 
+int numObjects(cJSON* obj);
+
 #endif
