@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cjson/cJSON.h>
+#include "requestInformation.h" 
 
 #define LOCATION "../speedtest_server_list.json"
 
@@ -34,24 +35,3 @@ cJSON* parseJSON(char* pntr){
 	}
 	return json;
 }
-
-
-
-
-int main(){	
-	char* pntr = readData();
-	cJSON* var = parseJSON(pntr);
-	if (var == NULL){
-		return 1;
-	}
-	char* string = cJSON_Print(var);
-	printf("%s \n \n ", string);
-	cJSON_Delete(var);
-	free(string);
-	free(pntr);
-	return 0;
-}
-
-
-
-
