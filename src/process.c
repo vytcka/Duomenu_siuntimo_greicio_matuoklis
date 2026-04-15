@@ -94,30 +94,34 @@
 	}
 
 	char* getCountry(CURL *handle) {
-		struct Memory chunk;
-    		chunk.data = malloc(1);
-   	 	chunk.size = 0;
+    		struct memory chunk;
+    		chunk.response = malloc(1);
+    		chunk.size = 0;
+    		chunk.response[0] = '\0';
 
     		const char *url = "http://ip-api.com/json/?fields=country";
-	
+
     		curl_easy_setopt(handle, CURLOPT_URL, url);
-    		curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, writeCallback);
+    		curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, cb);
     		curl_easy_setopt(handle, CURLOPT_WRITEDATA, (void *)&chunk);
     		curl_easy_setopt(handle, CURLOPT_TIMEOUT, 15L);
+    		curl_easy_setopt(handle, CURLOPT_HTTPGET, 1L);
 
     		CURLcode rezultatas = curl_easy_perform(handle);
 
     		if (rezultatas != CURLE_OK) {
-        		free(chunk.data);
+        		free(chunk.response);
         		return NULL;
     		}
-    		cJSON *json = cJSON_Parse(chunk.data);
-    		if (!json) {
-        		free(chunk.data);
-        		return NULL;
-    		}
+
+    		cJSON *json = cJSON_Parse(chunk.response);
 
     		cJSON *country = cJSON_GetObjectItemCaseSensitive(json, "country");
 
-    		char* result = strdup(country
+    		char *result = strdup(country->valuestring);
 
+    		cJSON_Delete(json);
+    		free(chunk.response);
+
+    		return result;
+	}
