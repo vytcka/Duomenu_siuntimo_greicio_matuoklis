@@ -1,9 +1,10 @@
 #include <stdlib.h>
 #include <curl/curl.h>
 #include "requestInfo.h"
-#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <cjson/cJSON.h>
+
 	typedef struct memory {
   		char *response;
   		size_t size;
@@ -47,7 +48,6 @@
 		return NULL;
 	}
 
-	
 	int makeRequest(CURL* handle, requestInformacija* p){
 		if (handle == NULL){
 			return 2;
@@ -62,7 +62,6 @@
 		curl_easy_setopt(handle, CURLOPT_URL, p->serveris.host);
 		curl_easy_setopt(handle, CURLOPT_TIMEOUT, 15L);
 		curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1L);
-		curl_easy_setopt(handle, CURLOPT_UPLOAD,  1L);
 		//vykdomas rekuestas
 		rezultatas = curl_easy_perform(handle);
 		if (rezultatas != CURLE_OK){
@@ -109,10 +108,11 @@
     		curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, cb);
     		curl_easy_setopt(handle, CURLOPT_WRITEDATA, (void *)&chunk);
     		curl_easy_setopt(handle, CURLOPT_TIMEOUT, 15L);
+		curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, 5L);
     		curl_easy_setopt(handle, CURLOPT_HTTPGET, 1L);
 
     		CURLcode rezultatas = curl_easy_perform(handle);
-
+		
     		if (rezultatas != CURLE_OK) {
         		free(chunk.response);
         		return NULL;
@@ -131,8 +131,11 @@
 			free(chunk.response);
 			return NULL;
 		}
-		char* result;
-    		strcpy(result, country->valuestring);
+		char* result = malloc(strlen(country->valuestring) + 1);
+		if(result == NULL){
+		       	return NULL;
+		}
+		strcpy(result, country->valuestring);
 
     		cJSON_Delete(json);
     		free(chunk.response);

@@ -1,54 +1,27 @@
 # Duomen-siuntimo-grei-io-matuoklis
 
+Būtinai turi būti įdiegtos šios bibliotekos:
 
-Šios užduoties tikslas sukurti programą, naudojant C programavimo kalbą, kuri
-nustatytų interneto duomenų parsisiuntimo ir išsiuntimo greitį.
+- `libcurl` — HTTP užklausoms
+- `libssl` / `libcrypto` — SSL palaikymui
+- `libcjson` — JSON failų apdorojimui
+- `libz` — suspaudimui
 
-Atliekant užduotį, reikia panaudoti šias bibliotekas:
- libcurl
- getopt
- cJSON
+Ubuntu/Debian sistemoje:
+sudo apt install libcurl4-openssl-dev libssl-dev libcjson-dev zlib1g-dev
 
-Pridedamas papildomas failas pavadinimu speedtest_server_list.json. Šiame faile
-yra pateiktas serverių sąrašas, kurie leidžia atlikti duomenų siuntimo testus. Kai kurie
-serveriai esantys sąraše gali būti nebe veiksnūs.
+## Kompiliavimas
 
-Programa turi gebėti atlikti šiuos veiksmus:
+Root direktorijoje įveskite:
+make
 
- Atlikti duomenų parsiuntimo greičio nustatymo testą;
+## Naudojimas
 
- Atlikti duomenų išsiuntimo greičio nustatymo testą;
+./main -du    # atsisiuntimo ir įkėlimo greičių testas
+./main -s     # randa geriausią serverį
+./main -a     # visas testas su visais serveriais
 
- Atlikti geriausio serverio pagal vietovę nustatymą;
 
- Atlikti vietovės nustatymą (susirasti API, kuris leistų nustatyti vietovę);
+## Pastabos
 
- Atlikti visą testą automatizuotai;
-
-Turi būti galimybė atlikti kiekvieną veiksmą pasirinktinai. Atliekant ne pilną testą, o
-pasirenkant individualų veiksmą, reikia įvertinti kokius parametrus reikia perduoti,
-kad tą veiksmą būtų galima atlikti. Pvz. Atliekant duomenų parsisiuntimo greitį, šiam
-veiksmui reikia nurodyti kokį serverį naudoti.
-
-Jeigu atliekamas automatizuotas testas, turi būti sudaryta atitinkama veiksmų seka,
-kad visi veiksmai būtų atliekami logiškai.
-
-Duomenų išsiuntimo ir parsiuntimo greitis turi būti išspausdinamas megabitais.
-Duomenų išsiuntimo ir parsiuntimo greičio nustatymo testai turi trukti neilgiau 15
-sekundžių. Po 15 sekundžių, veiksmas turi būti stabdomas.
-
-Rezultatus išspausdinti veiksmo pabaigoje, jeigu individualus veiksmas yra
-atliekamas, kitu atveju po visų veiksmų atlikimo. Viso testo metu informuoti vartotoją
-apie programos statusą/eigą.
-
-Išspausdinti šiuos duomenis:
- Duomenų parsisiuntimo greitį;
-
- Duomenų išsiuntimo greitį;
-
- Serverį, su kuriuo buvo atliktas testas;
-
- Vartotojo vietovė. Užtenka valstybės pavadinimo.
-Implementuoti programoje klaidų valdymo logiką.
-Programos rezultatą patalpinti github repozitorijoje.
-Parašyti programos paruošimui Makefile.
+Kadangi dauguma serverių nerodo atsisiuntimo ar išsiuntimo duomenų, man nepavyko padaryti „libcurl“ bibliotekos pakankamai jautrios arba pasirinkau netinkamą API funkciją, tačiau pati programa vis tiek pateikia užtrunkanti laiką susiekti su serveriu.

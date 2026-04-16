@@ -7,8 +7,9 @@
 
 char* readData();
 
-cJSON* parseJSON();
+cJSON* parseJSON(char* pntr);
 
 int numObjects(cJSON* obj);
 
 #endif
+

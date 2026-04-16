@@ -4,6 +4,7 @@
 
 #include <curl/curl.h>
 
+
 enum klaidosInformacija {
 	NO_ERROR = 0,
 	ERROR_DOWNLOADED_SIZE_FAILED = 10,

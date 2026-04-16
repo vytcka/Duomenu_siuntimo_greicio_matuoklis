@@ -17,7 +17,7 @@ int cleanHandle(CURL* handle);
 
 CURL* getHandle();
 
-int makeRequest(CURL* handle, requestInformacija *p);
+int makeRequest(CURL* handle,requestInformacija *p);
 
 char* getCountry(CURL* handle);
 
