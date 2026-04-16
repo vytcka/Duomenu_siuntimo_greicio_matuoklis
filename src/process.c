@@ -2,15 +2,16 @@
 #include <curl/curl.h>
 #include "requestInfo.h"
 #include <stdlib.h>
-
-	struct memory {
+#include <string.h>
+#include <cjson/cJSON.h>
+	typedef struct memory {
   		char *response;
   		size_t size;
-	};
+	}Memory;
 
 	static size_t cb(char *data, size_t size, size_t nmemb, void *clientp){
   		size_t realsize = nmemb * size;
-  		struct memory *mem = (struct memory *)clientp;
+  		Memory *mem = (Memory *)clientp;
 
   		char *ptr = realloc(mem->response, mem->size + realsize + 1);
   		if(!ptr)
@@ -47,7 +48,7 @@
 	}
 
 	
-	int makeRequest(CURL* handle, char* url, requestInformacija* p){
+	int makeRequest(CURL* handle, requestInformacija* p){
 		if (handle == NULL){
 			return 2;
 		}
@@ -58,7 +59,7 @@
 		CURLcode rezultatas;
 		
 		//configuruojamas requestas, kad po 15 sekundžų timeoutas ir, kad persekiotu redirekcionus.
-		curl_easy_setopt(handle, CURLOPT_URL, url);
+		curl_easy_setopt(handle, CURLOPT_URL, p->serveris.host);
 		curl_easy_setopt(handle, CURLOPT_TIMEOUT, 15L);
 		curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1L);
 		curl_easy_setopt(handle, CURLOPT_UPLOAD,  1L);
@@ -71,12 +72,12 @@
                 }
 		
 		//perziureti..
-		if(curl_easy_getinfo(handle, CURLINFO_SIZE_DOWNLOAD_T, &p->downloadedBytes) != CURLE_OK){
+		if(curl_easy_getinfo(handle, CURLINFO_SIZE_DOWNLOAD_T, &p->downloadedMegaBits) != CURLE_OK){
 			p->error = ERROR_DOWNLOADED_SIZE_FAILED;
 			cleanHandle(handle);
 			return 1;
 		}
-		if (curl_easy_getinfo(handle, CURLINFO_SIZE_UPLOAD_T, &p->uploadedBytes) != CURLE_OK){
+		if (curl_easy_getinfo(handle, CURLINFO_SIZE_UPLOAD_T, &p->uploadedMegaBits) != CURLE_OK){
 			p->error = ERROR_UPLOADED_SIZE_FAILED;
 			cleanHandle(handle);
 			return 1;
@@ -86,15 +87,18 @@
 			cleanHandle(handle);
 			return 1;
 		}
-		p->downloadSpeed = ((double)p->downloadedBytes * 8 /1000000) /p->timeTaken;
-		p->uploadSpeed = ((double)p->uploadedBytes * 8/1000000)/p->timeTaken;
+		p->downloadSpeed = ((double)p->downloadedMegaBits * 8 /1000000) /p->timeTaken;
+		p->uploadSpeed = ((double)p->uploadedMegaBits * 8/1000000)/p->timeTaken;
 		cleanHandle(handle);
 		p->error = NO_ERROR;
 		return 0;          
 	}
 
 	char* getCountry(CURL *handle) {
-    		struct memory chunk;
+		if (handle == NULL){
+			return NULL;
+		}
+    		Memory chunk;
     		chunk.response = malloc(1);
     		chunk.size = 0;
     		chunk.response[0] = '\0';
@@ -116,9 +120,19 @@
 
     		cJSON *json = cJSON_Parse(chunk.response);
 
-    		cJSON *country = cJSON_GetObjectItemCaseSensitive(json, "country");
+		if (json == NULL){
+			free(chunk.response);
+			return NULL;
+		}
 
-    		char *result = strdup(country->valuestring);
+    		cJSON *country = cJSON_GetObjectItemCaseSensitive(json, "country");
+		if (!cJSON_IsString(country) && !country->valuestring){
+			cJSON_Delete(json);
+			free(chunk.response);
+			return NULL;
+		}
+		char* result;
+    		strcpy(result, country->valuestring);
 
     		cJSON_Delete(json);
     		free(chunk.response);

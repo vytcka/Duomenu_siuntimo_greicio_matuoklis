@@ -21,9 +21,9 @@ typedef struct {
 }serverioInformacija;
 
 typedef struct {
-        serverioInformacija* serveris;
-        curl_off_t downloadedBytes;
-        curl_off_t uploadedBytes;
+        serverioInformacija serveris;
+        curl_off_t downloadedMegaBits;
+        curl_off_t uploadedMegaBits;
         double downloadSpeed;
         double uploadSpeed;
         double timeTaken;

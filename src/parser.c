@@ -15,15 +15,18 @@ char* readData(){
 	if (DATA == NULL){
 		return NULL;
 	}
-	size_t sizeVar = 10000000;
+	size_t sizeVar = 1000000;
 	size_t bytesRead = fread(DATA, 1, sizeVar, ftptr);
-	printf("%s", DATA);
-	printf("\n\n Kiekis baitu perskaityta. %zu\n \n", bytesRead);
+	DATA[bytesRead] = '\0';
 	fclose(ftptr);
 	return DATA;
 }
 
 cJSON* parseJSON(char* pntr){
+	if(pntr == NULL){ 
+		printf("checking");
+		return NULL;
+	}
 	cJSON* json = cJSON_Parse(pntr);
 	if(json == NULL){
 		const char* error_ptr = cJSON_GetErrorPtr();
@@ -42,16 +45,4 @@ int numObjects(cJSON* obj){
 	}
 	return cJSON_GetArraySize(obj);
 
-}
-
-int main(){
-	char* buff = readData();
-	
-	cJSON* pntr = parseJSON(buff);
-		
-	int skaicius = numObjects(pntr);
-
-	printf("\n skaicius objektu: %d \n", skaicius); 
-
-	return 0;
 }

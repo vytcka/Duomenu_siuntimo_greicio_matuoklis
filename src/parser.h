@@ -5,7 +5,7 @@
 
 #define LOCATION "../speedtest_server_list.json"
 
-int readData();
+char* readData();
 
 cJSON* parseJSON();
 
